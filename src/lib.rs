@@ -3,24 +3,26 @@ use std::io;
 
 pub struct Loadbar {
     progress: u32,
-    finished: u32,
+    length: u32,
     unit: char,
+    finished: bool,
 }
 
 impl Loadbar {
     pub fn new(unit: char, length: u32) -> Self {
         Loadbar {
             progress: 0,
-            finished: length,
+            length: length,
             unit: unit,
+            finished: false,
         }
     }
     pub fn set(&mut self, progress: f64) {
-        let new_units = ((self.finished as f64) * progress)
+        let new_units = ((self.length as f64) * progress)
                           .round() as i32
                           - (self.progress as i32);
-
-        if new_units > 0 {
+        
+        if !self.finished && new_units > 0 {
             for _ in 2..new_units {
                 print!("{}", self.unit);
                 io::stdout().flush();
@@ -29,7 +31,10 @@ impl Loadbar {
         }
 
         if progress >= 1.0 {
-            println!("");
+            if !self.finished {
+                println!("");
+                self.finished = true;
+            }
         }
 
     }
